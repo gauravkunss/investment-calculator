@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Investment Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        /* Tab Navigation Styles */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab-button {
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #495057;
+            border: none;
+            background: transparent;
+            transition: background 0.3s ease, color 0.3s ease;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .tab-button:hover {
+            background: #f1f3f5;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: white;
+        }
+
+        /* Calculator Body and Input Styles */
+        .calculator-body {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none; /* Hidden by default */
+        }
+
+        .tab-content.active {
+            display: block; /* Shown when active */
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .frequency-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .frequency-option {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .frequency-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .currency-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .currency-option {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: 500;
+        }
+
+        .currency-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .amount-in-words {
+            font-size: 0.9em;
+            color: #667eea;
+            margin-top: 5px;
+            font-weight: 500;
+            min-height: 20px;
+        }
+
+        .amount-in-words.japanese {
+            font-family: 'Meiryo', 'Yu Gothic', 'Hiragino Sans', sans-serif;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 30px; /* Adjusted margin */
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Results Section Styles */
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .result-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .result-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .result-words {
+            font-size: 0.9em;
+            color: #667eea;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .result-words.japanese {
+            font-family: 'Meiryo', 'Yu Gothic', 'Hiragino Sans', sans-serif;
+        }
+
+        .breakdown-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .breakdown-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .breakdown-value {
+            text-align: right;
+        }
+
+        .breakdown-words {
+            font-size: 0.8em;
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        .breakdown-words.japanese {
+            font-family: 'Meiryo', 'Yu Gothic', 'Hiragino Sans', sans-serif;
+        }
+
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+
+        .info-tooltip::after {
+            content: "ℹ️";
+            font-size: 0.9em;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9em;
+        }
+
+        .info-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Custom Message Box Styles */
+        #messageBoxBackground {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #messageBoxContent {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Permanent Disclaimer */
+        .permanent-disclaimer {
+            font-size: 0.8em;
+            color: #555; /* Dark grey */
+            margin-top: 30px; /* Breathing space above */
+            padding: 15px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 20px; /* Breathing space below */
+        }
+
+
+        @media (max-width: 768px) {
+            .calculator-body {
+                padding: 20px;
+            }
+            
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .currency-group {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .breakdown-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .breakdown-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Investment Calculator</h1>
+            <p>Calculate your investment's future value, required contributions, or manage withdrawals</p>
+        </div>
+        
+        <div class="calculator-body">
+            <div class="tab-nav">
+                <button class="tab-button active" onclick="showTab('futureValueTab')">Future Value</button>
+                <button class="tab-button" onclick="showTab('targetInvestmentTab')">Target Investment</button>
+                <button class="tab-button" onclick="showTab('swpCalculatorTab')">SWP Calculator</button>
+            </div>
+
+            <div id="futureValueTab" class="tab-content active">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label>
+                            Select Currency
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Choose your preferred currency for calculations</span>
+                            </span>
+                        </label>
+                        <div class="currency-group">
+                            <div class="currency-option active" data-currency="INR" data-symbol="₹">₹ INR</div>
+                            <div class="currency-option" data-currency="USD" data-symbol="$">$ USD</div>
+                            <div class="currency-option" data-currency="EUR" data-symbol="€">€ EUR</div>
+                            <div class="currency-option" data-currency="JPY" data-symbol="¥">¥ JPY</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="initialInvestment">
+                            Initial Lump Sum Investment (<span id="initialCurrencySymbol">₹</span>)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">The amount you can invest today as a one-time payment</span>
+                            </span>
+                        </label>
+                        <input type="text" id="initialInvestment" placeholder="1,00,000" oninput="formatNumberInput(this); updateAmountInWords('initialInvestment', 'initialWords')">
+                        <div class="amount-in-words" id="initialWords"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="recurringAmount">
+                            Recurring Investment Amount (<span id="recurringCurrencySymbol">₹</span>)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Amount you plan to invest regularly</span>
+                            </span>
+                        </label>
+                        <input type="text" id="recurringAmount" placeholder="10,000" oninput="formatNumberInput(this); updateAmountInWords('recurringAmount', 'recurringWords')">
+                        <div class="amount-in-words" id="recurringWords"></div>
+                        <div class="frequency-group">
+                            <div class="frequency-option active" data-frequency="monthly">Monthly</div>
+                            <div class="frequency-option" data-frequency="yearly">Yearly</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="investmentDuration">
+                            Investment Duration (Years)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Number of years you plan to make regular investments</span>
+                            </span>
+                        </label>
+                        <input type="number" id="investmentDuration" placeholder="10" min="1" max="50">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="holdingPeriod">
+                            Total Holding Period (Years)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Total years to hold investments (must be at least equal to investment duration)</span>
+                            </span>
+                        </label>
+                        <input type="number" id="holdingPeriod" placeholder="15" min="1" max="50">
+                        <div class="error-message" id="holdingPeriodError">
+                            Holding period must be at least equal to investment duration
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="annualReturn">
+                            Expected Annual Rate of Return (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Expected annual return before taxes and inflation</span>
+                            </span>
+                        </label>
+                        <input type="number" id="annualReturn" placeholder="12" min="0" max="30" step="0.1">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="taxRate">
+                            Tax Rate (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Tax rate applied to investment gains</span>
+                            </span>
+                        </label>
+                        <input type="number" id="taxRate" placeholder="10" min="0" max="50" step="0.1">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="inflationRate">
+                            Inflation Rate (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Expected annual inflation rate</span>
+                            </span>
+                        </label>
+                        <input type="number" id="inflationRate" placeholder="6" min="0" max="15" step="0.1">
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateInvestment()">Calculate Future Value</button>
+
+                <div class="results-section" id="futureValueResultsSection">
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <h3>Future Value (Nominal)</h3>
+                            <div class="result-value" id="futureValueNominal">₹0</div>
+                            <div class="result-words" id="futureValueNominalWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Future Value (Real)</h3>
+                            <div class="result-value" id="futureValueReal">₹0</div>
+                            <div class="result-words" id="futureValueRealWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Total Contributions</h3>
+                            <div class="result-value" id="totalContributions">₹0</div>
+                            <div class="result-words" id="totalContributionsWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Total Gains</h3>
+                            <div class="result-value" id="totalGains">₹0</div>
+                            <div class="result-words" id="totalGainsWords"></div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-section">
+                        <h3>Detailed Breakdown</h3>
+                        <div class="breakdown-item">
+                            <span>Initial Investment:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownInitial">₹0</span>
+                                <div class="breakdown-words" id="breakdownInitialWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Total Recurring Contributions:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownRecurring">₹0</span>
+                                <div class="breakdown-words" id="breakdownRecurringWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Gross Investment Gains:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownGrossGains">₹0</span>
+                                <div class="breakdown-words" id="breakdownGrossGainsWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Taxes on Gains:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownTaxes">₹0</span>
+                                <div class="breakdown-words" id="breakdownTaxesWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Net Investment Gains:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownNetGains">₹0</span>
+                                <div class="breakdown-words" id="breakdownNetGainsWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Final Value (After Tax):</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownFinalValue">₹0</span>
+                                <div class="breakdown-words" id="breakdownFinalValueWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Real Value (Inflation Adjusted):</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownRealValue">₹0</span>
+                                <div class="breakdown-words" id="breakdownRealValueWords"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="permanent-disclaimer">
+                    These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios. They are provided for reference purposes only and should not be construed as professional advice. Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
+                </div>
+            </div>
+
+            <div id="targetInvestmentTab" class="tab-content">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label>
+                            Select Currency
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Choose your preferred currency for calculations</span>
+                            </span>
+                        </label>
+                        <div class="currency-group">
+                            <div class="currency-option active" data-currency="INR" data-symbol="₹">₹ INR</div>
+                            <div class="currency-option" data-currency="USD" data-symbol="$">$ USD</div>
+                            <div class="currency-option" data-currency="EUR" data-symbol="€">€ EUR</div>
+                            <div class="currency-option" data-currency="JPY" data-symbol="¥">¥ JPY</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="targetAmount">
+                            Target Amount (<span id="targetCurrencySymbol">₹</span>)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">The desired future value of your investment</span>
+                            </span>
+                        </label>
+                        <input type="text" id="targetAmount" placeholder="1,00,00,000" oninput="formatNumberInput(this); updateAmountInWords('targetAmount', 'targetWords')">
+                        <div class="amount-in-words" id="targetWords"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="targetInitialInvestment">
+                            Initial Lump Sum Investment (<span id="targetInitialCurrencySymbol">₹</span>)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">The amount you can invest today as a one-time payment for your target</span>
+                            </span>
+                        </label>
+                        <input type="text" id="targetInitialInvestment" placeholder="0" oninput="formatNumberInput(this); updateAmountInWords('targetInitialInvestment', 'targetInitialWords')">
+                        <div class="amount-in-words" id="targetInitialWords"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="targetDuration">
+                            Investment Duration (Years)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Number of years to achieve your target amount</span>
+                            </span>
+                        </label>
+                        <input type="number" id="targetDuration" placeholder="20" min="1" max="50">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="targetAnnualReturn">
+                            Expected Annual Rate of Return (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Expected annual return before taxes and inflation</span>
+                            </span>
+                        </label>
+                        <input type="number" id="targetAnnualReturn" placeholder="12" min="0" max="30" step="0.1">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="targetTaxRate">
+                            Tax Rate (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Tax rate applied to investment gains</span>
+                            </span>
+                        </label>
+                        <input type="number" id="targetTaxRate" placeholder="10" min="0" max="50" step="0.1">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="targetInflationRate">
+                            Inflation Rate (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Expected annual inflation rate (for real value calculation)</span>
+                            </span>
+                        </label>
+                        <input type="number" id="targetInflationRate" placeholder="6" min="0" max="15" step="0.1">
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateTargetInvestment()">Calculate Required Contribution</button>
+
+                <div class="results-section" id="targetInvestmentResultsSection">
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <h3>Required Monthly Contribution</h3>
+                            <div class="result-value" id="requiredMonthlyContribution">₹0</div>
+                            <div class="result-words" id="requiredMonthlyContributionWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Required Yearly Contribution</h3>
+                            <div class="result-value" id="requiredYearlyContribution">₹0</div>
+                            <div class="result-words" id="requiredYearlyContributionWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Total Contributions</h3>
+                            <div class="result-value" id="targetTotalContributions">₹0</div>
+                            <div class="result-words" id="targetTotalContributionsWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Total Gains</h3>
+                            <div class="result-value" id="targetTotalGains">₹0</div>
+                            <div class="result-words" id="targetTotalGainsWords"></div>
+                        </div>
+                    </div>
+                    <div class="breakdown-section">
+                        <h3>Detailed Breakdown</h3>
+                        <div class="breakdown-item">
+                            <span>Target Amount:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownTargetAmount">₹0</span>
+                                <div class="breakdown-words" id="breakdownTargetAmountWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Initial Investment:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownTargetInitial">₹0</span>
+                                <div class="breakdown-words" id="breakdownTargetInitialWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Total Recurring Contributions:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownTargetRecurring">₹0</span>
+                                <div class="breakdown-words" id="breakdownTargetRecurringWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Gross Investment Gains:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownTargetGrossGains">₹0</span>
+                                <div class="breakdown-words" id="breakdownTargetGrossGainsWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Taxes on Gains:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownTargetTaxes">₹0</span>
+                                <div class="breakdown-words" id="breakdownTargetTaxesWords"></div>
+                            </div>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Net Investment Gains:</span>
+                            <div class="breakdown-value">
+                                <span id="breakdownTargetNetGains">₹0</span>
+                                <div class="breakdown-words" id="breakdownTargetNetGainsWords"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="permanent-disclaimer">
+                    These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios. They are provided for reference purposes only and should not be construed as professional advice. Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
+                </div>
+            </div>
+
+            <div id="swpCalculatorTab" class="tab-content">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label>
+                            Select Currency
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Choose your preferred currency for calculations</span>
+                            </span>
+                        </label>
+                        <div class="currency-group">
+                            <div class="currency-option active" data-currency="INR" data-symbol="₹">₹ INR</div>
+                            <div class="currency-option" data-currency="USD" data-symbol="$">$ USD</div>
+                            <div class="currency-option" data-currency="EUR" data-symbol="€">€ EUR</div>
+                            <div class="currency-option" data-currency="JPY" data-symbol="¥">¥ JPY</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="swpInitialAmount">
+                            Initial Investment Amount (<span id="swpInitialCurrencySymbol">₹</span>)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">The lump sum amount invested for SWP</span>
+                            </span>
+                        </label>
+                        <input type="text" id="swpInitialAmount" placeholder="50,00,000" oninput="formatNumberInput(this); updateAmountInWords('swpInitialAmount', 'swpInitialWords')">
+                        <div class="amount-in-words" id="swpInitialWords"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="deferWithdrawalFor">
+                            Defer Withdrawal For (Years)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Number of years to hold investment before starting withdrawals</span>
+                            </span>
+                        </label>
+                        <input type="number" id="deferWithdrawalFor" placeholder="0" min="0" max="30">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="monthlyWithdrawalAmount">
+                            Monthly Withdrawal Amount (<span id="swpWithdrawalCurrencySymbol">₹</span>)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">The fixed amount to withdraw each month</span>
+                            </span>
+                        </label>
+                        <input type="text" id="monthlyWithdrawalAmount" placeholder="25,000" oninput="formatNumberInput(this); updateAmountInWords('monthlyWithdrawalAmount', 'swpWithdrawalWords')">
+                        <div class="amount-in-words" id="swpWithdrawalWords"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="withdrawalDuration">
+                            Withdrawal Duration (Years)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Total years for which you want to withdraw</span>
+                            </span>
+                        </label>
+                        <input type="number" id="withdrawalDuration" placeholder="15" min="1" max="50">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="swpAnnualReturn">
+                            Expected Annual Rate of Return (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Expected annual return before taxes and inflation</span>
+                            </span>
+                        </label>
+                        <input type="number" id="swpAnnualReturn" placeholder="8" min="0" max="30" step="0.1">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="swpTaxRate">
+                            Tax Rate (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Tax rate applied to investment gains</span>
+                            </span>
+                        </label>
+                        <input type="number" id="swpTaxRate" placeholder="10" min="0" max="50" step="0.1">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="swpInflationRate">
+                            Inflation Rate (%)
+                            <span class="info-tooltip">
+                                <span class="tooltip-text">Expected annual inflation rate</span>
+                            </span>
+                        </label>
+                        <input type="number" id="swpInflationRate" placeholder="6" min="0" max="15" step="0.1">
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateSWP()">Calculate SWP</button>
+
+                <div class="results-section" id="swpResultsSection">
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <h3>Investment</h3>
+                            <div class="result-value" id="swpInvestment">₹0</div>
+                            <div class="result-words" id="swpInvestmentWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>First SWP</h3>
+                            <div class="result-value" id="swpFirstSWP">₹0</div>
+                            <div class="result-words" id="swpFirstSWPWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Last SWP (Inflated)</h3>
+                            <div class="result-value" id="swpLastSWPInflated">₹0</div>
+                            <div class="result-words" id="swpLastSWPInflatedWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Duration</h3>
+                            <div class="result-value" id="swpDuration">0 Years</div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Rate of Return (Post-Tax)</h3>
+                            <div class="result-value" id="swpRateOfReturn">0%</div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Total Withdrawal</h3>
+                            <div class="result-value" id="swpTotalWithdrawal">₹0</div>
+                            <div class="result-words" id="swpTotalWithdrawalWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Profit</h3>
+                            <div class="result-value" id="swpProfit">₹0</div>
+                            <div class="result-words" id="swpProfitWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Corpus Should Last For</h3>
+                            <div class="result-value" id="swpCorpusShouldLastFor">0 Years</div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Cl. Balance</h3>
+                            <div class="result-value" id="swpClosingBalance">₹0</div>
+                            <div class="result-words" id="swpClosingBalanceWords"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>Max Monthly Withdrawal</h3>
+                            <div class="result-value" id="swpMaximumWithdrawal">₹0</div>
+                            <div class="result-words" id="swpMaximumWithdrawalWords"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="permanent-disclaimer">
+                    These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios. They are provided for reference purposes only and should not be construed as professional advice. Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFrequency = 'monthly'; // For Future Value tab
+        let selectedCurrency = 'INR';
+        let currencySymbol = '₹';
+
+        // Currency configuration
+        const currencyConfig = {
+            'INR': {
+                symbol: '₹',
+                locale: 'en-IN',
+                defaultInitial: '100000', // For FV
+                defaultRecurring: '10000', // For FV
+                defaultReturn: '12', // General default
+                defaultTax: '10', // General default
+                defaultInflation: '6', // General default
+                defaultTargetAmount: '10000000', // For Target
+                defaultTargetInitial: '0', // For Target initial
+                defaultTargetDuration: '20', // For Target duration
+                defaultSWPInitial: '5000000', // For SWP
+                defaultSWPDeferral: '0', // For SWP
+                defaultSWPWithdrawalAmount: '25000', // For SWP
+                defaultSWPDuration: '15' // For SWP
+            },
+            'USD': {
+                symbol: '$',
+                locale: 'en-US',
+                defaultInitial: '10000',
+                defaultRecurring: '1000',
+                defaultReturn: '8',
+                defaultTax: '20',
+                defaultInflation: '3',
+                defaultTargetAmount: '1000000',
+                defaultTargetInitial: '0',
+                defaultTargetDuration: '25',
+                defaultSWPInitial: '500000',
+                defaultSWPDeferral: '0',
+                defaultSWPWithdrawalAmount: '2000',
+                defaultSWPDuration: '20'
+            },
+            'EUR': {
+                symbol: '€',
+                locale: 'de-DE',
+                defaultInitial: '10000',
+                defaultRecurring: '1000',
+                defaultReturn: '7',
+                defaultTax: '25',
+                defaultInflation: '2',
+                defaultTargetAmount: '1000000',
+                defaultTargetInitial: '0',
+                defaultTargetDuration: '25',
+                defaultSWPInitial: '500000',
+                defaultSWPDeferral: '0',
+                defaultSWPWithdrawalAmount: '2000',
+                defaultSWPDuration: '20'
+            },
+            'JPY': {
+                symbol: '¥',
+                locale: 'ja-JP',
+                defaultInitial: '1000000',
+                defaultRecurring: '100000',
+                defaultReturn: '5',
+                defaultTax: '20',
+                defaultInflation: '1',
+                defaultTargetAmount: '100000000',
+                defaultTargetInitial: '0',
+                defaultTargetDuration: '30',
+                defaultSWPInitial: '50000000',
+                defaultSWPDeferral: '0',
+                defaultSWPWithdrawalAmount: '200000',
+                defaultSWPDuration: '25'
+            }
+        };
+
+        // Function to switch between tabs
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show the selected tab content
+            document.getElementById(tabId).classList.add('active');
+            // Activate the clicked tab button by finding the one with the correct onclick attribute
+            document.querySelector(`.tab-button[onclick*="${tabId}"]`).classList.add('active');
+
+            // Hide all results sections when switching tabs
+            document.getElementById('futureValueResultsSection').style.display = 'none';
+            document.getElementById('targetInvestmentResultsSection').style.display = 'none';
+            document.getElementById('swpResultsSection').style.display = 'none';
+            
+            // Re-initialize values for the newly active tab
+            initializeTabValues(tabId);
+        }
+
+        // Function to initialize input values for a given tab
+        function initializeTabValues(tabId) {
+            const config = currencyConfig[selectedCurrency];
+
+            // Common currency symbol update
+            updateCurrencySymbols();
+
+            if (tabId === 'futureValueTab') {
+                document.getElementById('initialInvestment').value = parseFloat(config.defaultInitial).toLocaleString('en-US');
+                document.getElementById('recurringAmount').value = parseFloat(config.defaultRecurring).toLocaleString('en-US');
+                document.getElementById('investmentDuration').value = document.getElementById('investmentDuration').placeholder;
+                document.getElementById('holdingPeriod').value = document.getElementById('holdingPeriod').placeholder;
+                document.getElementById('annualReturn').value = config.defaultReturn;
+                document.getElementById('taxRate').value = config.defaultTax;
+                document.getElementById('inflationRate').value = config.defaultInflation;
+
+                updateAmountInWords('initialInvestment', 'initialWords');
+                updateAmountInWords('recurringAmount', 'recurringWords');
+            } else if (tabId === 'targetInvestmentTab') {
+                document.getElementById('targetAmount').value = parseFloat(config.defaultTargetAmount).toLocaleString('en-US');
+                document.getElementById('targetInitialInvestment').value = parseFloat(config.defaultTargetInitial).toLocaleString('en-US');
+                document.getElementById('targetDuration').value = document.getElementById('targetDuration').placeholder;
+                document.getElementById('targetAnnualReturn').value = config.defaultReturn;
+                document.getElementById('targetTaxRate').value = config.defaultTax;
+                document.getElementById('targetInflationRate').value = config.defaultInflation;
+
+                updateAmountInWords('targetAmount', 'targetWords');
+                updateAmountInWords('targetInitialInvestment', 'targetInitialWords');
+            } else if (tabId === 'swpCalculatorTab') {
+                document.getElementById('swpInitialAmount').value = parseFloat(config.defaultSWPInitial).toLocaleString('en-US');
+                document.getElementById('deferWithdrawalFor').value = config.defaultSWPDeferral;
+                document.getElementById('monthlyWithdrawalAmount').value = parseFloat(config.defaultSWPWithdrawalAmount).toLocaleString('en-US');
+                document.getElementById('withdrawalDuration').value = config.defaultSWPDuration;
+                document.getElementById('swpAnnualReturn').value = config.defaultReturn;
+                document.getElementById('swpTaxRate').value = config.defaultTax;
+                document.getElementById('swpInflationRate').value = config.defaultInflation;
+
+                updateAmountInWords('swpInitialAmount', 'swpInitialWords');
+                updateAmountInWords('monthlyWithdrawalAmount', 'swpWithdrawalWords');
+            }
+        }
+
+        // Function to update currency symbols across all inputs
+        function updateCurrencySymbols() {
+            document.getElementById('initialCurrencySymbol').textContent = currencySymbol;
+            document.getElementById('recurringCurrencySymbol').textContent = currencySymbol;
+            document.getElementById('targetCurrencySymbol').textContent = currencySymbol;
+            document.getElementById('targetInitialCurrencySymbol').textContent = currencySymbol;
+            document.getElementById('swpInitialCurrencySymbol').textContent = currencySymbol;
+            document.getElementById('swpWithdrawalCurrencySymbol').textContent = currencySymbol;
+        }
+
+        // Format number input with commas
+        function formatNumberInput(input) {
+            let value = input.value.replace(/,/g, '');
+            if (value && !isNaN(value)) {
+                input.value = parseFloat(value).toLocaleString('en-US');
+            }
+        }
+
+        // Convert number to words based on currency
+        function numberToWords(amount) {
+            if (!amount || amount === 0) return '';
+            
+            const num = Math.abs(amount);
+            
+            if (selectedCurrency === 'INR') {
+                return convertToIndianWords(num);
+            } else if (selectedCurrency === 'JPY') {
+                return convertToJapaneseWords(num);
+            } else {
+                return convertToWesternWords(num);
+            }
+        }
+
+        // Indian number system (Crore, Lakh)
+        function convertToIndianWords(num) {
+            if (num >= 10000000) {
+                const crores = Math.floor(num / 10000000);
+                const remainder = num % 10000000;
+                let result = crores + (crores === 1 ? ' Crore' : ' Crores');
+                if (remainder >= 100000) {
+                    const lakhs = Math.floor(remainder / 100000);
+                    result += ' ' + lakhs + (lakhs === 1 ? ' Lakh' : ' Lakhs');
+                }
+                return result + ' Rupees';
+            } else if (num >= 100000) {
+                const lakhs = Math.floor(num / 100000);
+                const remainder = num % 100000;
+                let result = lakhs + (lakhs === 1 ? ' Lakh' : ' Lakhs');
+                if (remainder >= 1000) {
+                    const thousands = Math.floor(remainder / 1000);
+                    result += ' ' + thousands + ' Thousand';
+                }
+                return result + ' Rupees';
+            } else {
+                return Math.floor(num) + ' Rupees';
+            }
+        }
+
+        // Western number system (Million, Billion)
+        function convertToWesternWords(num) {
+            const currency = selectedCurrency === 'USD' ? 'Dollars' : 'Euros';
+            
+            if (num >= 1000000000) {
+                const billions = (num / 1000000000).toFixed(1);
+                return billions + ' Billion ' + currency;
+            } else if (num >= 1000000) {
+                const millions = (num / 1000000).toFixed(1);
+                return millions + ' Million ' + currency;
+            } else if (num >= 1000) {
+                const thousands = (num / 1000).toFixed(1);
+                return thousands + ' Thousand ' + currency;
+            } else {
+                return Math.floor(num) + ' ' + currency;
+            }
+        }
+
+        // Japanese number system
+        function convertToJapaneseWords(num) {
+            if (num >= 100000000) {
+                const oku = Math.floor(num / 100000000);
+                const remainder = num % 100000000;
+                let result = oku + '億';
+                if (remainder >= 10000) {
+                    const man = Math.floor(remainder / 10000);
+                    result += man + '万';
+                }
+                return result + '円';
+            } else if (num >= 10000) {
+                const man = Math.floor(num / 10000);
+                return man + '万円';
+            } else {
+                return Math.floor(num) + '円';
+            }
+        }
+
+        // Update amount in words for a specific input field
+        function updateAmountInWords(inputId, wordsId) {
+            const input = document.getElementById(inputId);
+            const wordsElement = document.getElementById(wordsId);
+            const value = parseFloat(input.value.replace(/,/g, '')) || 0;
+            
+            wordsElement.textContent = numberToWords(value);
+            wordsElement.className = 'amount-in-words' + (selectedCurrency === 'JPY' ? ' japanese' : '');
+        }
+
+        // Handle currency selection
+        document.querySelectorAll('.currency-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.currency-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedCurrency = this.dataset.currency;
+                currencySymbol = this.dataset.symbol;
+                
+                // Update placeholder values and input values based on currency for active tab
+                const currentActiveTab = document.querySelector('.tab-content.active').id;
+                initializeTabValues(currentActiveTab);
+            });
+        });
+
+        // Handle frequency selection for Future Value tab
+        document.querySelectorAll('.frequency-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.frequency-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedFrequency = this.dataset.frequency;
+            });
+        });
+
+        // Validate holding period for Future Value tab
+        function validateHoldingPeriod() {
+            const investmentDuration = parseInt(document.getElementById('investmentDuration').value) || 0;
+            const holdingPeriod = parseInt(document.getElementById('holdingPeriod').value) || 0;
+            const errorElement = document.getElementById('holdingPeriodError');
+            
+            if (holdingPeriod > 0 && investmentDuration > 0 && holdingPeriod < investmentDuration) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+
+        // Add event listeners for validation on Future Value tab
+        document.getElementById('investmentDuration').addEventListener('input', validateHoldingPeriod);
+        document.getElementById('holdingPeriod').addEventListener('input', validateHoldingPeriod);
+
+        // --- Future Value Calculation Logic (Existing) ---
+        function calculateInvestment() {
+            const currentConfig = currencyConfig[selectedCurrency];
+
+            // Get input values, use placeholders as default if empty
+            const initialInvestmentInput = document.getElementById('initialInvestment').value.replace(/,/g, '');
+            const initialInvestment = parseFloat(initialInvestmentInput) || parseFloat(currentConfig.defaultInitial);
+
+            const recurringAmountInput = document.getElementById('recurringAmount').value.replace(/,/g, '');
+            const recurringAmount = parseFloat(recurringAmountInput) || parseFloat(currentConfig.defaultRecurring);
+            
+            const investmentDuration = parseInt(document.getElementById('investmentDuration').value) || 
+                                     parseInt(document.getElementById('investmentDuration').placeholder);
+            
+            const holdingPeriod = parseInt(document.getElementById('holdingPeriod').value) || 
+                                  parseInt(document.getElementById('holdingPeriod').placeholder);
+            
+            const annualReturn = (parseFloat(document.getElementById('annualReturn').value) || parseFloat(currentConfig.defaultReturn)) / 100;
+            const taxRate = (parseFloat(document.getElementById('taxRate').value) || parseFloat(currentConfig.defaultTax)) / 100;
+            const inflationRate = (parseFloat(document.getElementById('inflationRate').value) || parseFloat(currentConfig.defaultInflation)) / 100;
+
+            // Validate inputs
+            if (investmentDuration <= 0) {
+                showMessageBox('Error', 'Please enter a valid investment duration for Future Value calculation.');
+                return;
+            }
+
+            if (holdingPeriod < investmentDuration) {
+                showMessageBox('Error', 'Holding period must be at least equal to investment duration for Future Value calculation.');
+                return;
+            }
+
+            // Calculate additional holding years after investment period
+            const additionalHoldingYears = holdingPeriod - investmentDuration;
+
+            // Calculate contributions
+            const periodsPerYear = selectedFrequency === 'monthly' ? 12 : 1;
+            const totalRecurringContributions = recurringAmount * periodsPerYear * investmentDuration;
+            const totalContributions = initialInvestment + totalRecurringContributions;
+
+            // Calculate future value with compound interest
+            let futureValue = 0;
+
+            // Future value of initial lump sum
+            futureValue += initialInvestment * Math.pow(1 + annualReturn, holdingPeriod);
+
+            // Future value of recurring investments
+            if (recurringAmount > 0) {
+                const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
+                const periodicReturn = selectedFrequency === 'monthly' ? monthlyReturn : annualReturn;
+                
+                // Calculate future value of annuity during investment period
+                const annuityFV = recurringAmount * (Math.pow(1 + periodicReturn, periodsPerYear * investmentDuration) - 1) / periodicReturn;
+                
+                // Compound this value for the additional holding period
+                futureValue += annuityFV * Math.pow(1 + annualReturn, additionalHoldingYears);
+            }
+
+            // Calculate taxes
+            const grossGains = futureValue - totalContributions;
+            const taxes = Math.max(0, grossGains * taxRate);
+            const netFutureValue = futureValue - taxes;
+            const netGains = grossGains - taxes;
+
+            // Calculate real value (inflation-adjusted)
+            const realValue = netFutureValue / Math.pow(1 + inflationRate, holdingPeriod);
+
+            // Display results with words
+            displayResultWithWords('futureValueNominal', 'futureValueNominalWords', netFutureValue);
+            displayResultWithWords('futureValueReal', 'futureValueRealWords', realValue);
+            displayResultWithWords('totalContributions', 'totalContributionsWords', totalContributions);
+            displayResultWithWords('totalGains', 'totalGainsWords', netGains);
+
+            // Display breakdown with words
+            displayBreakdownWithWords('breakdownInitial', 'breakdownInitialWords', initialInvestment);
+            displayBreakdownWithWords('breakdownRecurring', 'breakdownRecurringWords', totalRecurringContributions);
+            displayBreakdownWithWords('breakdownGrossGains', 'breakdownGrossGainsWords', grossGains);
+            displayBreakdownWithWords('breakdownTaxes', 'breakdownTaxesWords', taxes);
+            displayBreakdownWithWords('breakdownNetGains', 'breakdownNetGainsWords', netGains);
+            displayBreakdownWithWords('breakdownFinalValue', 'breakdownFinalValueWords', netFutureValue);
+            displayBreakdownWithWords('breakdownRealValue', 'breakdownRealValueWords', realValue);
+
+            // Show results section
+            document.getElementById('futureValueResultsSection').style.display = 'block';
+            document.getElementById('futureValueResultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- Target Investment Calculation Logic (Existing) ---
+        function calculateTargetInvestment() {
+            const currentConfig = currencyConfig[selectedCurrency];
+
+            // Get input values, use placeholders as default if empty
+            const targetAmountInput = document.getElementById('targetAmount').value.replace(/,/g, '');
+            const targetAmount = parseFloat(targetAmountInput) || parseFloat(currentConfig.defaultTargetAmount);
+
+            const targetInitialInvestmentInput = document.getElementById('targetInitialInvestment').value.replace(/,/g, '');
+            const targetInitialInvestment = parseFloat(targetInitialInvestmentInput) || parseFloat(currentConfig.defaultTargetInitial);
+            
+            const targetDuration = parseInt(document.getElementById('targetDuration').value) || 
+                                   parseInt(document.getElementById('targetDuration').placeholder);
+            
+            const targetAnnualReturn = (parseFloat(document.getElementById('targetAnnualReturn').value) || parseFloat(currentConfig.defaultReturn)) / 100;
+            const targetTaxRate = (parseFloat(document.getElementById('targetTaxRate').value) || parseFloat(currentConfig.defaultTax)) / 100;
+            const targetInflationRate = (parseFloat(document.getElementById('targetInflationRate').value) || parseFloat(currentConfig.defaultInflation)) / 100;
+
+            // Validate inputs
+            if (targetAmount <= 0) {
+                showMessageBox('Error', 'Please enter a valid target amount.');
+                return;
+            }
+            if (targetDuration <= 0) {
+                showMessageBox('Error', 'Please enter a valid investment duration.');
+                return;
+            }
+            if (targetAnnualReturn <= 0) {
+                 showMessageBox('Error', 'Please enter a valid annual return rate.');
+                 return;
+            }
+
+            const periodsPerYear = 12; // Always monthly contribution for this calculator
+            const totalPeriods = targetDuration * periodsPerYear;
+            
+            // Effective annual return after tax
+            const effectiveAnnualReturn = targetAnnualReturn * (1 - targetTaxRate);
+            const monthlyEffectiveRate = Math.pow(1 + effectiveAnnualReturn, 1/periodsPerYear) - 1; // Monthly effective rate
+
+            let requiredRecurringContribution = 0;
+            let futureValueOfInitialInvestment = targetInitialInvestment * Math.pow(1 + effectiveAnnualReturn, targetDuration);
+
+            // Adjust target amount for initial investment
+            let netTargetAmount = targetAmount - futureValueOfInitialInvestment;
+
+            if (netTargetAmount <= 0) {
+                // If initial investment already meets or exceeds target, no recurring contribution needed
+                requiredRecurringContribution = 0;
+            } else {
+                // Calculate required recurring payment (PMT formula for future value of an ordinary annuity)
+                // FV = P * [((1 + r)^n - 1) / r]
+                // P = FV * r / ((1 + r)^n - 1)
+                if (monthlyEffectiveRate === 0) { // Handle zero interest rate
+                    requiredRecurringContribution = netTargetAmount / totalPeriods;
+                } else {
+                    requiredRecurringContribution = netTargetAmount * monthlyEffectiveRate / (Math.pow(1 + monthlyEffectiveRate, totalPeriods) - 1);
+                }
+            }
+
+            // Calculate total contributions and gains for display
+            const totalRecurringContributions = requiredRecurringContribution * totalPeriods;
+            const totalContributions = targetInitialInvestment + totalRecurringContributions;
+            const grossGains = targetAmount - totalContributions;
+            const taxes = Math.max(0, grossGains * targetTaxRate); // Taxes on gains
+            const netGains = grossGains - taxes;
+
+            // Display results
+            displayResultWithWords('requiredMonthlyContribution', 'requiredMonthlyContributionWords', requiredRecurringContribution);
+            displayResultWithWords('requiredYearlyContribution', 'requiredYearlyContributionWords', requiredRecurringContribution * periodsPerYear);
+            displayResultWithWords('targetTotalContributions', 'targetTotalContributionsWords', totalContributions);
+            displayResultWithWords('targetTotalGains', 'targetTotalGainsWords', netGains);
+
+            // Display breakdown
+            displayBreakdownWithWords('breakdownTargetAmount', 'breakdownTargetAmountWords', targetAmount);
+            displayBreakdownWithWords('breakdownTargetInitial', 'breakdownTargetInitialWords', targetInitialInvestment);
+            displayBreakdownWithWords('breakdownTargetRecurring', 'breakdownTargetRecurringWords', totalRecurringContributions);
+            displayBreakdownWithWords('breakdownTargetGrossGains', 'breakdownTargetGrossGainsWords', grossGains);
+            displayBreakdownWithWords('breakdownTargetTaxes', 'breakdownTargetTaxesWords', taxes);
+            displayBreakdownWithWords('breakdownTargetNetGains', 'breakdownTargetNetGainsWords', netGains);
+
+            // Show results section
+            document.getElementById('targetInvestmentResultsSection').style.display = 'block';
+            document.getElementById('targetInvestmentResultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- SWP Calculation Logic (Existing) ---
+        function calculateSWP() {
+            const currentConfig = currencyConfig[selectedCurrency];
+
+            // Get input values, use placeholders/defaults if empty
+            const initialAmountInput = document.getElementById('swpInitialAmount').value.replace(/,/g, '');
+            const initialAmount = parseFloat(initialAmountInput) || parseFloat(currentConfig.defaultSWPInitial);
+
+            const deferWithdrawalFor = parseInt(document.getElementById('deferWithdrawalFor').value) ||
+                                       parseInt(document.getElementById('deferWithdrawalFor').placeholder);
+
+            const monthlyWithdrawalAmountInput = document.getElementById('monthlyWithdrawalAmount').value.replace(/,/g, '');
+            const monthlyWithdrawalAmount = parseFloat(monthlyWithdrawalAmountInput) || parseFloat(currentConfig.defaultSWPWithdrawalAmount);
+
+            const withdrawalDuration = parseInt(document.getElementById('withdrawalDuration').value) ||
+                                       parseInt(document.getElementById('withdrawalDuration').placeholder);
+
+            const annualReturn = (parseFloat(document.getElementById('swpAnnualReturn').value) || parseFloat(currentConfig.defaultReturn)) / 100;
+            const taxRate = (parseFloat(document.getElementById('swpTaxRate').value) || parseFloat(currentConfig.defaultTax)) / 100;
+            const inflationRate = (parseFloat(document.getElementById('swpInflationRate').value) || parseFloat(currentConfig.defaultInflation)) / 100;
+
+            // Input Validations
+            if (initialAmount <= 0) {
+                showMessageBox('Error', 'Please enter a valid initial investment amount for SWP.');
+                return;
+            }
+            if (withdrawalDuration <= 0) {
+                showMessageBox('Error', 'Please enter a valid withdrawal duration for SWP.');
+                return;
+            }
+            if (annualReturn <= 0) {
+                showMessageBox('Error', 'Please enter a valid annual return rate for SWP.');
+                return;
+            }
+
+            // Adjust annual return for tax (assuming tax applies to the entire return for simplicity in rate calculation)
+            const effectiveAnnualReturn = annualReturn * (1 - taxRate);
+            const monthlyEffectiveRate = Math.pow(1 + effectiveAnnualReturn, 1/12) - 1;
+
+            // 1. Calculate corpus after deferral period
+            let corpusAfterDeferral = initialAmount * Math.pow(1 + annualReturn, deferWithdrawalFor);
+
+            let totalNominalWithdrawals = 0;
+            let closingBalance = corpusAfterDeferral;
+            let totalGrossGains = 0; // Track total gains generated by the portfolio
+
+            // Simulate withdrawals for display values and to determine if corpus lasts
+            let tempCorpusForSimulation = corpusAfterDeferral;
+            let actualWithdrawalsMade = 0;
+            let lastSWPInflated = monthlyWithdrawalAmount * Math.pow(1 + inflationRate, withdrawalDuration); // Last SWP inflated by user's inflation rate
+
+            for (let month = 1; month <= withdrawalDuration * 12; month++) {
+                if (tempCorpusForSimulation <= 0) {
+                    break; // Corpus already depleted
+                }
+
+                // Apply monthly growth before withdrawal
+                const monthlyGain = tempCorpusForSimulation * monthlyEffectiveRate;
+                tempCorpusForSimulation += monthlyGain;
+                totalGrossGains += monthlyGain; // Accumulate gross gains
+
+                // Withdraw amount
+                const withdrawalThisMonth = monthlyWithdrawalAmount;
+                
+                if (tempCorpusForSimulation < withdrawalThisMonth) {
+                    // If corpus is less than full withdrawal, take remaining and stop
+                    totalNominalWithdrawals += tempCorpusForSimulation;
+                    tempCorpusForSimulation = 0;
+                    break;
+                } else {
+                    tempCorpusForSimulation -= withdrawalThisMonth;
+                    totalNominalWithdrawals += withdrawalThisMonth;
+                }
+            }
+            closingBalance = tempCorpusForSimulation;
+
+            // Profit calculation: (Total Withdrawals + Closing Balance) - Initial Investment (after deferral)
+            const profit = (totalNominalWithdrawals + closingBalance) - corpusAfterDeferral;
+
+            // Calculate "Corpus Should Last For" more accurately
+            let corpusForDurationCheck = corpusAfterDeferral;
+            let simulatedMonths = 0;
+            const maxSimulationMonths = 100 * 12; // Cap at 100 years to prevent infinite loops
+
+            while (corpusForDurationCheck > 0 && simulatedMonths < maxSimulationMonths) {
+                const monthlyGain = corpusForDurationCheck * monthlyEffectiveRate;
+                corpusForDurationCheck += monthlyGain;
+                
+                if (corpusForDurationCheck < monthlyWithdrawalAmount) {
+                    // Corpus cannot cover full withdrawal, it will run out this month
+                    simulatedMonths++;
+                    corpusForDurationCheck = 0; // Mark as depleted
+                    break;
+                }
+                corpusForDurationCheck -= monthlyWithdrawalAmount;
+                simulatedMonths++;
+            }
+            const corpusLastsYears = simulatedMonths / 12;
+
+            // Calculate "Maximum amount you can withdraw" (PMT formula for present value of an annuity)
+            // PMT = PV * r / [1 - (1 + r)^(-n)]
+            let maxMonthlyWithdrawal = 0;
+            const totalWithdrawalPeriods = withdrawalDuration * 12;
+
+            if (monthlyEffectiveRate === 0) {
+                // If rate is 0, max withdrawal is initial amount / total periods
+                maxMonthlyWithdrawal = corpusAfterDeferral / totalWithdrawalPeriods;
+            } else {
+                maxMonthlyWithdrawal = corpusAfterDeferral * monthlyEffectiveRate / (1 - Math.pow(1 + monthlyEffectiveRate, -totalWithdrawalPeriods));
+            }
+            
+            // Display results
+            displayResultWithWords('swpInvestment', 'swpInvestmentWords', initialAmount);
+            displayResultWithWords('swpFirstSWP', 'swpFirstSWPWords', monthlyWithdrawalAmount);
+            displayResultWithWords('swpLastSWPInflated', 'swpLastSWPInflatedWords', lastSWPInflated);
+            document.getElementById('swpDuration').textContent = `${withdrawalDuration} Years`;
+            document.getElementById('swpRateOfReturn').textContent = `${(effectiveAnnualReturn * 100).toFixed(2)}%`;
+            displayResultWithWords('swpTotalWithdrawal', 'swpTotalWithdrawalWords', totalNominalWithdrawals);
+            displayResultWithWords('swpProfit', 'swpProfitWords', profit);
+            document.getElementById('swpCorpusShouldLastFor').textContent = `${corpusLastsYears.toFixed(1)} Years`;
+            displayResultWithWords('swpClosingBalance', 'swpClosingBalanceWords', closingBalance);
+            displayResultWithWords('swpMaximumWithdrawal', 'swpMaximumWithdrawalWords', maxMonthlyWithdrawal);
+
+            // Show results section
+            document.getElementById('swpResultsSection').style.display = 'block';
+            document.getElementById('swpResultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        // --- Helper Functions (Shared) ---
+
+        function displayResultWithWords(valueId, wordsId, amount) {
+            document.getElementById(valueId).textContent = formatCurrency(amount);
+            const wordsElement = document.getElementById(wordsId);
+            wordsElement.textContent = numberToWords(amount);
+            wordsElement.className = 'result-words' + (selectedCurrency === 'JPY' ? ' japanese' : '');
+        }
+
+        function displayBreakdownWithWords(valueId, wordsId, amount) {
+            document.getElementById(valueId).textContent = formatCurrency(amount);
+            const wordsElement = document.getElementById(wordsId);
+            wordsElement.textContent = numberToWords(amount);
+            wordsElement.className = 'breakdown-words' + (selectedCurrency === 'JPY' ? ' japanese' : '');
+        }
+
+        function formatCurrency(amount) {
+            const config = currencyConfig[selectedCurrency];
+            return new Intl.NumberFormat(config.locale, {
+                style: 'currency',
+                currency: selectedCurrency,
+                minimumFractionDigits: selectedCurrency === 'JPY' ? 0 : 2, /* JPY has no decimals */
+                maximumFractionDigits: selectedCurrency === 'JPY' ? 0 : 2
+            }).format(amount);
+        }
+
+        // Custom Message Box instead of alert()
+        function showMessageBox(title, message) {
+            // Remove any existing message box to prevent duplicates
+            const existingMessageBox = document.getElementById('messageBoxBackground');
+            if (existingMessageBox) {
+                document.body.removeChild(existingMessageBox);
+            }
+
+            // Create modal background
+            const modalBackground = document.createElement('div');
+            modalBackground.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            modalBackground.id = 'messageBoxBackground';
+
+            // Create modal content
+            const modalContent = document.createElement('div');
+            modalContent.id = 'messageBoxContent'; // Add ID for potential removal
+            modalContent.style.cssText = `
+                background-color: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                text-align: center;
+                max-width: 400px;
+                width: 90%;
+                animation: fadeIn 0.3s ease-out;
+            `;
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.textContent = title;
+            modalTitle.style.cssText = `
+                color: #2c3e50;
+                margin-bottom: 15px;
+                font-size: 1.5em;
+            `;
+
+            const modalMessage = document.createElement('p');
+            modalMessage.textContent = message;
+            modalMessage.style.cssText = `
+                color: #495057;
+                margin-bottom: 25px;
+                font-size: 1.1em;
+            `;
+
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'OK';
+            closeButton.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1em;
+                font-weight: 600;
+                transition: transform 0.2s ease;
+            `;
+            closeButton.onmouseover = () => closeButton.style.transform = 'translateY(-2px)';
+            closeButton.onmouseout = () => closeButton.style.transform = 'translateY(0)';
+            closeButton.onclick = () => document.body.removeChild(modalBackground);
+
+            modalContent.appendChild(modalTitle);
+            modalContent.appendChild(modalMessage);
+            modalContent.appendChild(closeButton);
+            modalBackground.appendChild(modalContent);
+            document.body.appendChild(modalBackground);
+
+            // Add simple fade-in animation (ensure style is only added once)
+            if (!document.getElementById('fadeInStyle')) {
+                const style = document.createElement('style');
+                style.id = 'fadeInStyle';
+                style.innerHTML = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(-20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Add event listeners to all relevant input fields to disable insight button on change
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputFields = document.querySelectorAll(
+                '#futureValueTab input, #targetInvestmentTab input, #swpCalculatorTab input'
+            );
+            inputFields.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Only disable if it's not the currency option group (handled separately)
+                    if (!this.closest('.currency-group') && !this.closest('.frequency-group')) {
+                        // Removed call to disableInsightButtonForActiveTab();
+                    }
+                });
+            });
+
+            // Set initial values for the default active tab (Future Value)
+            initializeTabValues('futureValueTab');
+            // Show the default tab
+            showTab('futureValueTab');
+        });
+
+        // Add enter key support for calculation on active tab
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                const activeTabId = document.querySelector('.tab-content.active').id;
+                if (activeTabId === 'futureValueTab') {
+                    calculateInvestment();
+                } else if (activeTabId === 'targetInvestmentTab') {
+                    calculateTargetInvestment();
+                } else if (activeTabId === 'swpCalculatorTab') {
+                    calculateSWP();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
